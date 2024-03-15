@@ -13,7 +13,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin: 20px;
+            margin: 100px;
         }
         .project {
             display: flex;
@@ -22,30 +22,41 @@
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 8px;
-            width: 60%;
+            width: 500px;
         }
         .project img {
             margin-right: 15px;
-            width: 50px;
-            height: 50px;
+            width: 128px;
+            height: 128px;
+            border-radius: 8px;
         }
         .project-details {
             display: flex;
             flex-direction: column;
+        }
+        a {
+            text-decoration: none;
+            color: black;
+        }
+        span {
+            color: #888888;
         }
     </style>
 </head>
 <body>
     <div class="container">
         {% for project in projects %}
-            <div class="project">
+            <a href="{{ project.app_url }}" class="project">
                 <img src="{{ project.icon_url }}" alt="Icon">
                 <div class="project-details">
-                    <a href="{{ project.app_url }}" target="_blank">{{ project.name }}</a>
+                    <p style="font-size: 36px; margin: 0px;">{{ project.name }} </p>
                     <span>{{ project.details }}</span>
                 </div>
-            </div>
+            </a>
         {% endfor %}
+        <span>
+            Copywrite Overburn 2024
+        </span>
     </div>
 </body>
 </html>
