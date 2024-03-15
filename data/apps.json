@@ -6,6 +6,12 @@
         "details": "A chat app with OpenAI"
     },
     {
+        "name": "TuftedFox.com",
+        "app_url": "https://tuftedfox.com",
+        "icon_url": "img/app_icons/tuftedfox.png",
+        "details": "Custom original tufted rugs"
+    },
+    {
         "name": "GitHub",
         "app_url": "https://github.com/overburn12",
         "icon_url": "img/app_icons/overburn.png",
