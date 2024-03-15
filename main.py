@@ -26,6 +26,8 @@ with open('static/favicon.ico', 'rb') as f:
 with open('data/apps.json', 'r') as file:
     PROJECTS = json.load(file)
 
+PROJECTS_NO_ADMIN = PROJECTS[:-1]
+
 
 #-------------------------------------------------------------------
 # content routes
@@ -33,7 +35,11 @@ with open('data/apps.json', 'r') as file:
 
 @app.route('/')
 def home():
-    return render_template('index.html', projects=PROJECTS)
+    admin_cookie = request.cookies.get('admin_cookie')
+    if admin_cookie == 'true':
+        return render_template('index.html', projects=PROJECTS)
+    return render_template('index.html', projects=PROJECTS_NO_ADMIN)
+    
 
 
 @app.route('/robots.txt')
