@@ -1,6 +1,5 @@
-import os
+import os, json, re
 from flask import Flask, render_template, request, abort, Response, send_from_directory
-from werkzeug.utils import secure_filename
 
 #custom module
 from database import track_page
@@ -9,11 +8,8 @@ app = Flask(__name__)
 
 
 #-------------------------------------------------------------------
-# constants
+# constants / variables
 #-------------------------------------------------------------------
-
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-IMAGE_DIR = 'img/'
 
 HOST = '0.0.0.0'
 PORT = 8081
@@ -27,12 +23,8 @@ with open('static/favicon.ico', 'rb') as f:
     favicon_data = f.read()
 
 
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
-def file_exists(filename):
-    return os.path.exists(os.path.join(IMAGE_DIR, filename))
+with open('data/apps.json', 'r') as file:
+    PROJECTS = json.load(file)
 
 
 #-------------------------------------------------------------------
@@ -40,8 +32,8 @@ def file_exists(filename):
 #-------------------------------------------------------------------
 
 @app.route('/')
-def index():
-    return "Welcome to overburn.dev"
+def home():
+    return render_template('index.html', projects=PROJECTS)
 
 
 @app.route('/robots.txt')
@@ -59,17 +51,14 @@ def favicon():
     return Response(favicon_data, mimetype='image/vnd.microsoft.icon')
 
 
-@app.route('/img/<path:image_name>')
-def serve_image(image_name):
-    image_name = secure_filename(image_name)
-    
-    if not allowed_file(image_name) or not file_exists(image_name):
-        abort(404)
-    try:
-        return send_from_directory(IMAGE_DIR, image_name)
-    except FileNotFoundError:
-        abort(404)
+@app.route('/img/<path:path>')
+def serve_image(path):
+    if not re.match(r'^[\w/]+/\w+\.(jpg|jpeg|png|gif)$', path):
+        print(f"fpath failed: {path}")
+        abort(404) 
 
+    return send_from_directory('img', path)
+    
 
 #-------------------------------------------------------------------
 # aux. routes
