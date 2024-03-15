@@ -6,6 +6,12 @@
         "details": "A chat app with OpenAI"
     },
     {
+        "name": "GitHub",
+        "app_url": "https://github.com/overburn12",
+        "icon_url": "img/app_icons/overburn.png",
+        "details": "my personal GitHub account"
+    },
+    {
         "name": "Admin Access",
         "app_url": "https://admin.overburn.dev",
         "icon_url": "img/app_icons/admin.png",
