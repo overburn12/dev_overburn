@@ -1,5 +1,7 @@
 import os, json, re
 from flask import Flask, render_template, request, abort, Response, send_from_directory
+from flask import Flask, send_from_directory, abort
+from werkzeug.utils import secure_filename
 
 #custom module
 from database import track_page
@@ -39,7 +41,15 @@ def home():
     if admin_cookie == 'true':
         return render_template('index.html', projects=PROJECTS)
     return render_template('index.html', projects=PROJECTS_NO_ADMIN)
-    
+
+
+@app.route('/apps/<path:app_name>')
+def serve_app(app_name):
+    if app_name.endswith('.html'):
+        safe_app_name = secure_filename(app_name)
+        return send_from_directory('apps', safe_app_name)
+    else:
+        abort(403)
 
 
 @app.route('/robots.txt')
