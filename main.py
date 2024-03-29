@@ -46,8 +46,7 @@ def home():
 @app.route('/apps/<path:app_name>')
 def serve_app(app_name):
     if app_name.endswith('.html'):
-        safe_app_name = secure_filename(app_name)
-        return send_from_directory('apps', safe_app_name)
+        return send_from_directory('apps', app_name)
     else:
         abort(403)
 
@@ -69,11 +68,9 @@ def favicon():
 
 @app.route('/img/<path:path>')
 def serve_image(path):
-    if not re.match(r'^[\w/]+/\w+\.(jpg|jpeg|png|gif)$', path):
-        print(f"fpath failed: {path}")
-        abort(404) 
-
-    return send_from_directory('img', path)
+    if re.match(r'^[\w/]+/\w+\.(jpg|jpeg|png|gif)$', path):
+        return send_from_directory('img', path)
+    abort(403) 
     
 
 #-------------------------------------------------------------------
