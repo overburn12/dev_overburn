@@ -1,5 +1,11 @@
 [
     {
+        "name": "Typing Speed",
+        "app_url": "/apps/WPM.html",
+        "icon_url": "img/app_icons/WPM.png",
+        "details": "A chat app with OpenAI"
+    },
+    {
         "name": "Chat with GPT",
         "app_url": "https://chat.overburn.dev",
         "icon_url": "img/app_icons/chat.png",

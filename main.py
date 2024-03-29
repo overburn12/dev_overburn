@@ -43,12 +43,9 @@ def home():
     return render_template('index.html', projects=PROJECTS_NO_ADMIN)
 
 
-@app.route('/apps/<path:app_name>')
+@app.route('/apps/<app_name>.html')
 def serve_app(app_name):
-    if app_name.endswith('.html'):
-        return send_from_directory('apps', app_name)
-    else:
-        abort(403)
+    return send_from_directory('apps', app_name + '.html')
 
 
 @app.route('/robots.txt')
