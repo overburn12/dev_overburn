@@ -10,10 +10,20 @@
             font-family: Arial, sans-serif;
         }
         .container {
+            margin: 200px;
+        }
+        .grid-container{
+            padding-top: 10px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(524px, 1fr));
+            grid-auto-rows: auto; 
+            gap: 0px;
+            justify-content: center;
+        }
+        .grid-item{
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            margin: 100px;
         }
         .project {
             display: flex;
@@ -42,19 +52,50 @@
             color: #888888;
         }
     </style>
+    <script src="https://unpkg.com/vue@2.6.14/dist/vue.js"></script>
 </head>
 <body>
-    <div class="container">
-        {% for project in projects %}
-            <a href="{{ project.app_url }}" class="project">
-                <img src="{{ project.icon_url }}" alt="Icon">
-                <div class="project-details">
-                    <p style="font-size: 36px; margin: 0px;">{{ project.name }} </p>
-                    <span>{{ project.details }}</span>
-                </div>
-            </a>
-        {% endfor %}
-        <span>&copy; Overburn 2024</span>
+    <div id="app" class="container">
+        <div class="grid-container">
+            <project-item v-for="project in projects" :key="project.id" :project="project"></project-item>
+        </div>
+        <div class="grid-item">
+            <span style="margin: 20px;">&copy; Overburn 2024</span>
+        </div>
     </div>
+
+    <script>
+        new Vue({
+            el: '.container',
+            data: {
+                projects: []
+            },
+            mounted() {
+                fetch('/projects')
+                    .then(response => response.json())
+                    .then(data => {
+                        this.projects = data;
+                    });
+            }
+        });
+    </script>
+
+    <script>
+        Vue.component('project-item', {
+            props: ['project'],
+            template: `
+                <div class="grid-item">
+                    <a :href="project.app_url" class="project">
+                        <img :src="project.icon_url" alt="Icon">
+                        <div class="project-details">
+                            <p style="font-size: 36px; margin: 0px;">{{ project.name }}</p>
+                            <span>{{ project.details }}</span>
+                        </div>
+                    </a>
+                </div>
+            `
+        });
+        
+    </script>
 </body>
 </html>

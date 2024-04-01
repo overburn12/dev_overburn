@@ -9,7 +9,6 @@
             justify-content: center;
             align-items: center;
             flex-direction: column;
-            height: 100vh;
             margin: 0;
             background: #F0F0F0;
             font-family: Arial, sans-serif;
@@ -17,179 +16,104 @@
         #typingArea {
             margin-top: 20px;
             width: 600px;
-            height: 100px;
+            height: 20vh;
             padding: 10px;
-            font-size: 90%;
         }
         #typingSpeed {
-            font-size: 120%;
             margin-top: 10px;
         }
         #chart {
             margin-top: 30px;
-            width: 600px;
-            height: 400px;
-        }
-        button {
-            margin-top: 20px;
-            padding: 6px 30px;
-            font-size: 100%;
-            color: white;
-            background-color: #007bff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
+            width: 1000px;
         }
     </style>
 </head>
 <body>
     <h1>Typing Speed Monitor</h1>
-    <button onClick="toggleTracking()">Start Tracking</button>
-    <textarea id="typingArea" oninput="calculateSpeed(event)" placeholder="Start typing..." autofocus></textarea>
+    <textarea id="typingArea" oninput="handle_keypress(event)" placeholder="Start typing..." autofocus></textarea>
     <div id="typingSpeed">WPM: 0</div>
-    <div><canvas id="chart"></canvas></div>
+    <div id="chart-div"><canvas id="chart"></canvas></div>
 
 <script type="text/javascript">
     let tracking = false;
-    let wordsTypedQueue = [];
-    let timerSeconds; 
-    let wpmList = [];
-    let wpmListLastSec = [];
-    let chart;
+    let press_count = [];
+    let time_count = 0;
+    let chart = new Chart(document.getElementById('chart').getContext('2d'), {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [
+                {
+                    label: '1 Second Typing Speed (WPM)',
+                    data: [],
+                    borderColor: 'dodgerblue',
+                    fill: false
+                },
+                {
+                    label: '5 Second Typing Speed (WPM)',
+                    data: [],
+                    borderColor: 'steelblue', 
+                    backgroundColor: 'rgba(70, 130, 180, 0.2)',
+                    fill: true
+                },
+                {
+                    label: '10 Second Typing Speed (WPM)',
+                    data: [],
+                    borderColor: 'navy', // Dark blue
+                    backgroundColor: 'rgba(0, 0, 128, 0.5)', 
+                    fill: true
+                }
+            ]
+        }
+    });
+
+    function getAverage(seconds) {
+        let recentPresses = press_count.slice(-seconds);
+        if (recentPresses.length === 0) {
+            return 0; 
+        }
+        let total_press_count = recentPresses.reduce((acc, count) => acc + count, 0);
+        let averagePressesPerSecond = total_press_count / seconds;
+        return (averagePressesPerSecond / 5) * 60;
+    }
     
+
 	window.onload = function(){
-	   setInterval(do_timer, 1000);
+	    setInterval(() => {
+            if(!tracking){
+                return;
+            }
+            let wordsPerMinute = getAverage(1);
+            let avgWordPerMinute = getAverage(5);
+            let avg10WordPerMinute = getAverage(10);
+            chart.data.labels.push(time_count);
+            chart.data.datasets[0].data.push(wordsPerMinute);
+            chart.data.datasets[1].data.push(avgWordPerMinute);
+            chart.data.datasets[2].data.push(avg10WordPerMinute);
+            chart.update();
+            if(press_count.slice(-4).every(count => count === 0 )){
+                tracking = false;
+            }
+            time_count++;
+            press_count.push(0);
+        }, 1000);
 	};
 
-    function calculateSpeed(e) {
+    function handle_keypress(e) {
         if (!tracking) {
-            return;
+            press_count = [0];
+            time_count = 0;
+            tracking = true;
+            chart.data.labels = [];
+            chart.data.datasets[0].data = [];
+            chart.data.datasets[1].data = [];
+            chart.data.datasets[2].data = [];
         }
-	
         if (e.inputType === "insertText") {
-            if(wordsTypedQueue.length > 0) {
-                wordsTypedQueue[wordsTypedQueue.length - 1] ++;
-            }
+            press_count[press_count.length - 1]++;
         }
     }
 
-    function startTracking() {
-        tracking = true;
-	timerSeconds = 0;
-	wordsTypedQueue = [];
-        wpmList = [];
-        wpmListLastSec = [];
-        if(chart){
-	    chart.data.labels = [];
-	    chart.data.datasets.forEach((dataset) => {
-	        dataset.data = [];
-	    });  
-	    chart.destroy();
-        }
-        document.getElementById('typingArea').value = ''; // reset the text area
-
-    }
-
-    function stopTracking() {
-        tracking = false;
-    }
-
-    function do_timer() {
-        if (!tracking) { 
-	    return; 
-        }
-        wordsTypedQueue.push(0);
-
-        let recentWordsTyped = wordsTypedQueue.slice(-4).reduce((a, b) => a + b, 0);
-
-        const wpm = (recentWordsTyped / 5.0); // Counting each word as 5 characters
-        document.getElementById('typingSpeed').innerHTML = `WPM: ${wpm*15.0}`;
-	    
-        updateChart();
-        timerSeconds++;
-    }
-    
-
-	function toggleTracking() {
-	    var button = document.querySelector('button'); // select the button tag
-
-	    if (tracking) {
-		stopTracking();
-		button.textContent = 'Start Tracking';  // if tracking is Stopped, show 'Start Tracking'
-	    } else {
-		startTracking();
-		button.textContent = 'Stop Tracking';  // if tracking is Started, show 'Stop Tracking'
-	    }
-	}
-
-	function updateChart() {
-	    let lastIndex = wordsTypedQueue.length - 1;
-	    // Last 1 second WPM
-	    let lastSecondWpm = (wordsTypedQueue[lastIndex]  / 5.0) * 60.0;
-	    
-	    let recentWordsTyped = 0;
-	    let bufferStart = lastIndex - 3;
-	    let bufferLen = lastIndex - Math.max(0, bufferStart) + 1;
-	    
-	    for(let i = lastIndex - bufferLen + 1; i <= lastIndex; i++){
-  	        recentWordsTyped += (wordsTypedQueue[i] * 1.0);
-	    }
-	    
-	    if(bufferLen == 4 && recentWordsTyped == 0){
-	    	toggleTracking();
-	    }
-	    
-            let currentWpm = (recentWordsTyped / 5.0) * (60.0 / bufferLen);
-	    
-	    wpmList.push(currentWpm);
-	    wpmListLastSec.push(lastSecondWpm);
-	    
-	    if(!chart){
-		var ctx = document.getElementById('chart').getContext('2d');
-		chart = new Chart(ctx, {
-		    type: 'line',
-		    data: {
-			labels: wpmList.map((_, i) => i+1),
-			datasets: [{
-			    label: 'WPM (Last 1 second)',
-			    data: wpmListLastSec,
-			    backgroundColor: 'rgba(255, 99, 132, 0.5)',
-			    borderColor: 'rgba(255, 99, 132, 1)',
-			    borderWidth: 1,
-			    fill: false
-			},
-			{
-			    label: 'WPM (Last 4 seconds)',
-			    data: wpmList,
-			    backgroundColor: 'rgba(0, 123, 255, 0.5)',
-			    borderColor: 'rgba(0, 123, 255, 1)',
-			    borderWidth: 1
-			}]
-		    },
-		    options: {
-			scales: {
-			    yAxes: [{
-			        ticks: {
-			            beginAtZero: true
-			        }
-			    }]
-			}
-		    }
-		});
-	    } else {
-		    if(wpmList.length > 30) {
-			// Remove the first element
-			wpmList.shift();
-			wpmListLastSec.shift();
-			chart.data.labels.shift();
-		    }
-		    chart.data.labels.push(timerSeconds);
-		    chart.update();
-	    }
-	}
 </script>
 
 </body>

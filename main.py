@@ -1,7 +1,5 @@
 import os, json, re
-from flask import Flask, render_template, request, abort, Response, send_from_directory
-from flask import Flask, send_from_directory, abort
-from werkzeug.utils import secure_filename
+from flask import Flask, render_template, request, abort, Response, send_from_directory, jsonify
 
 #custom module
 from database import track_page
@@ -35,12 +33,22 @@ PROJECTS_NO_ADMIN = PROJECTS[:-1]
 # content routes
 #-------------------------------------------------------------------
 
+@app.route('/projects')
+def api_projects():
+    admin_cookie = request.cookies.get('admin_cookie')
+    access_cookie = request.cookies.get('access_cookie')
+    if not access_cookie:
+        abort(404)
+    if admin_cookie:
+        return jsonify(PROJECTS)
+    return jsonify(PROJECTS_NO_ADMIN)  
+
+
 @app.route('/')
 def home():
-    admin_cookie = request.cookies.get('admin_cookie')
-    if admin_cookie == 'true':
-        return render_template('index.html', projects=PROJECTS)
-    return render_template('index.html', projects=PROJECTS_NO_ADMIN)
+    response = send_from_directory('templates', 'index.html')
+    response.set_cookie('access_cookie', 'true')
+    return response
 
 
 @app.route('/apps/<app_name>.html')
