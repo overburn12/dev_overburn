@@ -1,15 +1,21 @@
 [
     {
+        "name": "Chat with GPT",
+        "app_url": "https://chat.overburn.dev",
+        "icon_url": "img/app_icons/chat.png",
+        "details": "A chat app with OpenAI"
+    },
+    {
         "name": "Typing Speed",
         "app_url": "/apps/WPM.html",
         "icon_url": "img/app_icons/WPM.png",
         "details": "Chart your WPM rate in real time"
     },
     {
-        "name": "Chat with GPT",
-        "app_url": "https://chat.overburn.dev",
-        "icon_url": "img/app_icons/chat.png",
-        "details": "A chat app with OpenAI"
+        "name": "Quit counter",
+        "app_url": "/apps/weed.html",
+        "icon_url": "img/app_icons/quit.png",
+        "details": "Count the time since I quit"
     },
     {
         "name": "TuftedFox.com",

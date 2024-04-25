@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sobriety Counter</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 20%;
+    }
+    h1 {
+      font-size: 2em;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="sobrietyCounter"></h1>
+
+  <script>
+    // Set the date of when you quit
+    const quitDate = new Date("2024-04-20T10:00:00-04:00");
+
+    function updateSobrietyCounter() {
+      const currentDate = new Date();
+      const timeDifference = currentDate.getTime() - quitDate.getTime();
+
+      // Calculate total seconds, minutes, hours, days
+      let totalSeconds = Math.floor(timeDifference / 1000);
+      let days = Math.floor(totalSeconds / (3600 * 24));
+      totalSeconds %= 3600 * 24;
+      let hours = Math.floor(totalSeconds / 3600);
+      totalSeconds %= 3600;
+      let minutes = Math.floor(totalSeconds / 60);
+      let seconds = totalSeconds % 60;
+
+      document.getElementById("sobrietyCounter").textContent = `${days} days, ${hours} hours, ${minutes} minutes, ${seconds} seconds`;
+    }
+
+    // Call the function initially
+    updateSobrietyCounter();
+
+    // Call the function every second
+    setInterval(updateSobrietyCounter, 1000);
+  </script>
+</body>
+</html>
